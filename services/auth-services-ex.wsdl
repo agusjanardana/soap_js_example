@@ -1,0 +1,61 @@
+<definitions
+  name="AuthService"
+  targetNamespace="http://localhost/AuthService.wsdl"
+  xmlns="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:tns="http://localhost/AuthService.wsdl"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <types>
+    <schema
+      targetNamespace="http://example.com/AuthService.wsdl"
+      xmlns="http://www.w3.org/2001/XMLSchema"
+>
+      <element name="GetSessionIdRequest">
+        <complexType>
+          <sequence>
+            <element name="username" type="string" />
+            <element name="password" type="string" />
+          </sequence>
+        </complexType>
+      </element>
+      <element name="GetSessionIdResponse">
+        <complexType>
+          <sequence>
+            <element name="sessionId" type="string" />
+          </sequence>
+        </complexType>
+      </element>
+    </schema>
+  </types>
+  <message name="GetSessionIdRequest">
+    <part name="parameters" element="tns:GetSessionIdRequest" />
+  </message>
+  <message name="GetSessionIdResponse">
+    <part name="parameters" element="tns:GetSessionIdResponse" />
+  </message>
+  <portType name="AuthPortType">
+      <operation name="GetSessionId">
+          <input message="tns:GetSessionIdRequest"/>
+          <output message="tns:GetSessionIdResponse"/>
+      </operation>
+  </portType>
+  <binding name="AuthBinding" type="tns:AuthPortType">
+    <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="GetSessionId">
+      <soap:operation soapAction="http://localhost:3000/wsdl/login"/>
+      <input>
+        <soap:body use="encoded" namespace="http://example.com/weather"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="http://example.com/weather"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+  </binding>
+  <service name="AuthService">
+    <port name="AuthPort" binding="tns:AuthBinding">
+      <soap:address location="http://localhost:3030/wsdl/login" />
+    </port>
+  </service>
+</definitions>

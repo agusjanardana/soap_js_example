@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-  "?>
+<wsdl:definitions targetNamespace="http://tempuri.org/" 
+  xmlns:s="http://www.w3.org/2001/XMLSchema" 
+  xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" 
+  xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" 
+  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" 
+  xmlns:tns="http://tempuri.org/" 
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+  xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" 
+  xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" 
+  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:element name="GetSessionIdRequest">
+        <s:complexType>
+          <s:sequence>
+            <s:element name="username" type="string" />
+            <s:element name="password" type="string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSessionIdResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element name="sessionId" maxOccurs="unbounded" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <!-- MESSAGES: defines the data being exchanged between the service and client -->
+  <wsdl:message name="GetSessionIdSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSessionIdRequest"/>
+  </wsdl:message>
+  <wsdl:message name="GetSessionIdSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSessionIdResponse"/>
+  </wsdl:message>
+  <!-- PORT TYPES: defines the complete communication operation (one way/round trip) -->
+  <wsdl:portType name="AuthSoapPort">
+    <!-- The operation name must be the same as the one specified in the service object -->
+    <wsdl:operation name="GetSessionId">
+      <wsdl:input message="tns:GetSessionIdSoapIn"/>
+      <wsdl:output message="tns:GetSessionIdSoapOut"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <!-- BINDING: provides details on how a portType operation will actually be transmitted -->
+  <wsdl:binding name="GetSessionIdServiceSoapBinding" type="tns:AuthSoapPort">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="GetSessionId">
+      <soap:operation soapAction="GetSessionId" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <!-- SERVICE:  -->
+  <wsdl:service name="AuthService">
+    <wsdl:port name="AuthSoapPort" binding="tns:GetSessionIdServiceSoapBinding">
+      <soap:address location="http://localhost:3030/wsdl/login"/>
+    </wsdl:port>
+  
+  </wsdl:service>
+</wsdl:definitions>

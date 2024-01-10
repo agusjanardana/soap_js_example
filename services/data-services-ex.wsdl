@@ -1,0 +1,62 @@
+<definitions
+  name="DataService"
+  targetNamespace="http://example.com/DataService.wsdl"
+  xmlns="http://schemas.xmlsoap.org/wsdl/"
+>
+  <types>
+    <schema
+      targetNamespace="http://example.com/DataService.wsdl"
+      xmlns="http://www.w3.org/2001/XMLSchema"
+    >
+      <element name="GetDataRequest">
+        <complexType>
+          <sequence>
+            <!-- Jika ada parameter tambahan, tambahkan di sini -->
+          </sequence>
+        </complexType>
+      </element>
+
+      <element name="GetDataResponse">
+        <complexType>
+          <sequence>
+            <element name="data" type="string" />
+          </sequence>
+        </complexType>
+      </element>
+    </schema>
+  </types>
+
+  <message name="GetDataRequest">
+    <part name="parameters" element="tns:GetDataRequest" />
+  </message>
+
+  <message name="GetDataResponse">
+    <part name="parameters" element="tns:GetDataResponse" />
+  </message>
+
+  <portType name="DataPortType">
+    <operation name="GetData">
+      <input message="tns:GetDataRequest" />
+      <output message="tns:GetDataResponse" />
+    </operation>
+  </portType>
+
+  <binding name="DataBinding" type="tns:DataPortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+    <operation name="GetData">
+      <soap:operation soapAction="GetData" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+  </binding>
+
+  <service name="DataService">
+    <port name="DataPort" binding="tns:DataBinding">
+      <soap:address location="http://localhost:3030/wsdl/data" />
+    </port>
+  </service>
+</definitions>
