@@ -1,0 +1,59 @@
+curl -i -X POST \
+  'http://127.0.0.1:9080/USCDB/LOGIN' \
+  -H "Content-Type: text/xml"\
+  -d @- <<EOF
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://localhost/AuthService.wsdl" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/">
+    <soap:Body>
+        <tns:LGI>
+            <OPNAME>vdsp</OPNAME>
+            <PWD>123456</PWD>
+        </tns:LGI>
+    </soap:Body>
+</soap:Envelope>
+EOF
+
+curl -i -X POST \
+  'http://127.0.0.1:9080/USCDB/LOGOUT/8xs1s2545hx' \
+  -H "Content-Type: text/xml"\
+  -d @- <<EOF
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://localhost/LogoutService.wsdl" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/">
+    <soap:Body>
+        <LGO>
+        </LGO>
+    </soap:Body>
+</soap:Envelope>
+EOF
+
+docker-compose -p docker-apisix -f docker-compose-arm64.yml up -d
+
+curl -i -X POST \
+  'http://127.0.0.1:9080/USCDB/8to1s2iakef' \
+  -H "Content-Type: text/xml"\
+  -d @- <<EOF
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://localhost/AuthService.wsdl" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/">
+    <soap:Body>
+        <GetDataRequest>
+        </GetDataRequest>
+    </soap:Body>
+</soap:Envelope>
+EOF
+
+
+curl -i -X POST \
+  'http://127.0.0.1:9080/USCDB/MAINTENANCE/8to1s2iakef' \
+  -H "Content-Type: text/xml"\
+  -d @- <<EOF
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://localhost/AuthService.wsdl" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/">
+    <soap:Body>
+        <tns:MaintenanceSessionRequest>
+        </tns:MaintenanceSessionRequest>
+    </soap:Body>
+</soap:Envelope>
+EOF
+
+
+docker buildx build --platform linux/amd64 -t my-cool-image .

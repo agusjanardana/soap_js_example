@@ -11,16 +11,14 @@
   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://10.53.93.34/AuthServices">
-      <s:element name="LGI">
+      <s:element name="LGO">
         <s:complexType>
           <s:sequence>
-            <s:element name="OPNAME" type="string" />
-            <s:element name="PWD" type="string" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="LGIResponse">
-          <s:complexType>
+      <s:element name="LGOResponse">
+        <s:complexType>
               <s:sequence>
                   <s:element name="Result">
                       <s:complexType>
@@ -31,30 +29,30 @@
                       </s:complexType>
                   </s:element>
               </s:sequence>
-          </s:complexType>
+        </s:complexType>
       </s:element>
     </s:schema>
   </wsdl:types>
   <!-- MESSAGES: defines the data being exchanged between the service and client -->
-  <wsdl:message name="GetSessionIdSoapIn">
-    <wsdl:part name="request" element="tns:LGI"/>
+  <wsdl:message name="LogoutSoapIn">
+    <wsdl:part name="parameters" element="tns:LGO"/>
   </wsdl:message>
-  <wsdl:message name="GetSessionIdSoapOut">
-    <wsdl:part name="response" element="tns:LGIResponse"/>
+  <wsdl:message name="LogoutSoapOut">
+    <wsdl:part name="parameters" element="tns:LGOResponse"/>
   </wsdl:message>
   <!-- PORT TYPES: defines the complete communication operation (one way/round trip) -->
-  <wsdl:portType name="AuthSoapPort">
+  <wsdl:portType name="LogoutPort">
     <!-- The operation name must be the same as the one specified in the service object -->
-    <wsdl:operation name="GetSessionId">
-      <wsdl:input message="tns:GetSessionIdSoapIn"/>
-      <wsdl:output message="tns:GetSessionIdSoapOut"/>
+    <wsdl:operation name="Logout">
+      <wsdl:input message="tns:LogoutSoapIn"/>
+      <wsdl:output message="tns:LogoutSoapOut"/>
     </wsdl:operation>
   </wsdl:portType>
   <!-- BINDING: provides details on how a portType operation will actually be transmitted -->
-  <wsdl:binding name="GetSessionIdServiceSoapBinding" type="tns:AuthSoapPort">
+  <wsdl:binding name="LogoutSoapBinding" type="tns:LogoutPort">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
-    <wsdl:operation name="GetSessionId">
-      <soap:operation soapAction="GetSessionId" style="document"/>
+    <wsdl:operation name="Logout">
+      <soap:operation soapAction="Logout" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -64,9 +62,9 @@
     </wsdl:operation>
   </wsdl:binding>
   <!-- SERVICE:  -->
-  <wsdl:service name="AuthService">
-    <wsdl:port name="AuthSoapPort" binding="tns:GetSessionIdServiceSoapBinding">
-      <soap:address location="http://localhost:3030/wsdl/login"/>
+  <wsdl:service name="LogoutService">
+    <wsdl:port name="LogoutPort" binding="tns:LogoutSoapBinding">
+      <soap:address location="http://localhost:3030/wsdl/logout"/>
     </wsdl:port>
   
   </wsdl:service>

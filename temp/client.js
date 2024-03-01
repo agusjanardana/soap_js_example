@@ -10,11 +10,14 @@ soap.createClient(url, function(err, client) {
     // client.GetSessionId({ username: 'bagus', password: '123456'}, function(err, result) {
     //     console.log("result: ", result);
     // });
-
-    console.log("client: ", client)
+    var soapHeader = {
+      "Location": "127.0.0.1",
+    };
+    client.addSoapHeader(soapHeader);
 
     client.GetData({}, function(err, result) {
         console.log("result: ", result);
+        console.log(soapHeader);
     });
   }
 });

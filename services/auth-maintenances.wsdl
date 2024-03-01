@@ -11,16 +11,14 @@
   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://10.53.93.34/AuthServices">
-      <s:element name="LGI">
+      <s:element name="MaintenanceSessionRequest">
         <s:complexType>
           <s:sequence>
-            <s:element name="OPNAME" type="string" />
-            <s:element name="PWD" type="string" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="LGIResponse">
-          <s:complexType>
+      <s:element name="MaintenanceSessionResponse">
+        <s:complexType>
               <s:sequence>
                   <s:element name="Result">
                       <s:complexType>
@@ -31,30 +29,30 @@
                       </s:complexType>
                   </s:element>
               </s:sequence>
-          </s:complexType>
+        </s:complexType>
       </s:element>
     </s:schema>
   </wsdl:types>
   <!-- MESSAGES: defines the data being exchanged between the service and client -->
-  <wsdl:message name="GetSessionIdSoapIn">
-    <wsdl:part name="request" element="tns:LGI"/>
+  <wsdl:message name="MaintenanceSessionSoapIn">
+    <wsdl:part name="parameters" element="tns:MaintenanceSessionRequest"/>
   </wsdl:message>
-  <wsdl:message name="GetSessionIdSoapOut">
-    <wsdl:part name="response" element="tns:LGIResponse"/>
+  <wsdl:message name="MaintenanceSessionSoapOut">
+    <wsdl:part name="parameters" element="tns:MaintenanceSessionResponse"/>
   </wsdl:message>
   <!-- PORT TYPES: defines the complete communication operation (one way/round trip) -->
-  <wsdl:portType name="AuthSoapPort">
+  <wsdl:portType name="MaintenanceSoapPort">
     <!-- The operation name must be the same as the one specified in the service object -->
-    <wsdl:operation name="GetSessionId">
-      <wsdl:input message="tns:GetSessionIdSoapIn"/>
-      <wsdl:output message="tns:GetSessionIdSoapOut"/>
+    <wsdl:operation name="MaintenanceSessionId">
+      <wsdl:input message="tns:MaintenanceSessionSoapIn"/>
+      <wsdl:output message="tns:MaintenanceSessionSoapOut"/>
     </wsdl:operation>
   </wsdl:portType>
   <!-- BINDING: provides details on how a portType operation will actually be transmitted -->
-  <wsdl:binding name="GetSessionIdServiceSoapBinding" type="tns:AuthSoapPort">
+  <wsdl:binding name="MaintenanceSessionSoapBinding" type="tns:MaintenanceSoapPort">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
-    <wsdl:operation name="GetSessionId">
-      <soap:operation soapAction="GetSessionId" style="document"/>
+    <wsdl:operation name="MaintenanceSessionId">
+      <soap:operation soapAction="MaintenanceSessionId" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -64,9 +62,9 @@
     </wsdl:operation>
   </wsdl:binding>
   <!-- SERVICE:  -->
-  <wsdl:service name="AuthService">
-    <wsdl:port name="AuthSoapPort" binding="tns:GetSessionIdServiceSoapBinding">
-      <soap:address location="http://localhost:3030/wsdl/login"/>
+  <wsdl:service name="MaintenanceService">
+    <wsdl:port name="MaintenanceSoapPort" binding="tns:MaintenanceSessionSoapBinding">
+      <soap:address location="http://localhost:3030/wsdl/Maintenance"/>
     </wsdl:port>
   
   </wsdl:service>
