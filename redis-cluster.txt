@@ -1,0 +1,9 @@
+docker-compose -f docker-compose-redis.yml up -d 
+
+
+
+
+2. 
+
+
+docker-compose exec redis1 redis-cli --cluster create host.docker.internal:6379 host.docker.internal:6380 host.docker.internal:6381 --cluster-replicas 0

@@ -1,5 +1,5 @@
 curl -i -X POST \
-  'http://127.0.0.1:9080/USCDB/LOGIN' \
+  'http://127.0.0.1:8800/LOGIN' \
   -H "Content-Type: text/xml"\
   -d @- <<EOF
 <?xml version="1.0" encoding="utf-8"?>
@@ -26,10 +26,12 @@ curl -i -X POST \
 </soap:Envelope>
 EOF
 
+curl -i -X POST 'http://127.0.0.1:9080/post'
+
 docker-compose -p docker-apisix -f docker-compose-arm64.yml up -d
 
 curl -i -X POST \
-  'http://127.0.0.1:9080/USCDB/8to1s2iakef' \
+  'http://127.0.0.1:9080/DATA' \
   -H "Content-Type: text/xml"\
   -d @- <<EOF
 <?xml version="1.0" encoding="utf-8"?>
@@ -41,9 +43,25 @@ curl -i -X POST \
 </soap:Envelope>
 EOF
 
+curl -i -X POST \
+  'http://127.0.0.1:9080/uqw8m9dx4pk' \
+  -H "Content-Type: text/xml"\
+  -d @- <<EOF
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://localhost/AuthService.wsdl" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/">
+    <soap:Body>
+        <GetDataRequest>
+        </GetDataRequest>
+    </soap:Body>
+</soap:Envelope>
+EOF
 
 curl -i -X POST \
-  'http://127.0.0.1:9080/USCDB/MAINTENANCE/8to1s2iakef' \
+  'http://127.0.0.1:9080/MAINTENANCE/qkj3ib85whm' \
+  -H "Content-Type: text/xml"
+
+curl -i -X POST \
+  'http://127.0.0.1:9080/MAINTENANCE/qkj3ib85whm' \
   -H "Content-Type: text/xml"\
   -d @- <<EOF
 <?xml version="1.0" encoding="utf-8"?>

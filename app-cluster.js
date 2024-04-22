@@ -3,7 +3,7 @@ const soap = require("soap");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const fs = require("fs");
-const redis = require("redis");
+// const redis = require("redis");
 const crypto = require("crypto");
 const Redis = require('ioredis');
 
@@ -23,12 +23,26 @@ app.use(cookieParser());
 const users = [{ username: "bagus", password: "123456", sessionId: "ABC123" }];
 
 function initializeRedis() {
+  // const redis = new Redis.Cluster([
+  //     { host: process.env.REDIS_HOST_1, port: process.env.REDIS_PORT_1 },
+  //     { host: process.env.REDIS_HOST_2, port: process.env.REDIS_PORT_2 },
+  //     { host: process.env.REDIS_HOST_3, port: process.env.REDIS_PORT_3 },
+  //     // Tambahkan node Redis Cluster lainnya di sini
+  // ]);
   const redis = new Redis.Cluster([
-      { host: process.env.REDIS_HOST_1, port: process.env.REDIS_PORT_1 },
-      { host: process.env.REDIS_HOST_2, port: process.env.REDIS_PORT_2 },
-      { host: process.env.REDIS_HOST_3, port: process/env.REDIS_PORT_4 },
-      // Tambahkan node Redis Cluster lainnya di sini
-  ]);
+      {
+        host: process.env.REDIS_HOST_1,
+        port: process.env.REDIS_PORT_1,
+      },
+      {
+        host: process.env.REDIS_HOST_2,
+        port: process.env.REDIS_PORT_2,
+      },
+      {
+        host: process.env.REDIS_HOST_3,
+        port: process.env.REDIS_PORT_3,
+      },
+    ])
 
   return redis
 }
@@ -80,8 +94,6 @@ function hashPassword(password) {
   return hashedPassword;
 }
 
-const url = `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`;
-
 const services = {
   AuthService: {
     AuthSoapPort: {
@@ -90,14 +102,10 @@ const services = {
           const sessionId = generateSessionId();
           const { OPNAME, PWD } = args;
 
-          const client = redis.createClient({
-            url: url,
-          });
-          client.on("error", (err) => console.log("Redis Client Error", err));
-
-          await client.connect();
-
+          const client = initializeRedis();
+          // await client.connect();
           const value = await client.get("user");
+          console.log("value: ", value);
 
           if (value) {
             // Cek apakah ada user dengan username yang sesuai
@@ -136,7 +144,7 @@ const services = {
 
               client.quit();
               res.setHeader("Session", sessionId);
-              res.setHeader("Location", 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/' + sessionId)
+              res.setHeader("Location", 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/USCDB/' + sessionId)
               res.setHeader("Location-maintenance", 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/MAINTENANCE/' + sessionId)
               res.status(307);
               cb(null, data);
@@ -167,6 +175,7 @@ const services = {
           }
         } catch (err) {
           res.status(500);
+          console.log("Error: ", err);
 
           const data = {
             Result : {
@@ -189,18 +198,14 @@ const services = {
           const sessionId = req.params.sessionId;
           // Cari user dengan sessionId yang sesuai di redis
 
-          const client = redis.createClient({
-            url: url,
-          });
-          client.on("error", (err) => console.log("Redis Client Error", err));
-
+          const client = initializeRedis();
           await client.connect();
 
           const value = await client.get(sessionId);
           if (value) {
             // get username from sessionid
             await client.expire(sessionId, 50);
-            // await client.expire(value, 50);
+            await client.expire(value, 50);
 
             const data = {
               Result: {
@@ -208,7 +213,7 @@ const services = {
                 ResultDesc: "Operation is successful",
               }
             };  
-            res.setHeader("Location", 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/' + sessionId)
+            res.setHeader("Location", 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/USCDB/' + sessionId)
             res.setHeader("Location-maintenance", 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/MAINTENANCE/' + sessionId)
             await client.quit();
             return;
@@ -284,18 +289,15 @@ const services = {
             cb(null, data);
           }
 
-          const client = redis.createClient({
-            url: url,
-          });
-          client.on("error", (err) => console.log("Redis Client Error", err));
-
+          const client = initializeRedis();
           await client.connect();
 
-          const value = await client.get(sessionId);
+          // const value = await client.get(sessionId);
 
           if (value) {
             await client.del(sessionId);
             // await client.del(value);
+
             const data = {
               Result: {
                 ResultCode: "0",
