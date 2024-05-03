@@ -227,16 +227,33 @@ const services = {
             return;
           }
         } catch (err) {
-          const data = {
-            Result: {
-              ResultCode: '5001',
-              ResultDesc: 'Internal error',
-            },
-          };
+          console.log('Error: ', err)
+          // check if err containts Record does not exist
+          if (err.code === 2) {
+            const data = {
+              Result: {
+                ResultCode: '5004',
+                ResultDesc: 'Session ID invalid or time out',
+              },
+            };
+            res.setHeader('Location-maintenance', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
+            res.status(440);
+            cb(null, data);
 
-          res.status(500);
-          res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id');
-          cb(null, data);
+          } else {
+
+            const data = {
+              Result: {
+                ResultCode: '5001',
+                ResultDesc: 'Internal error',
+              },
+            };
+
+            res.status(500);
+            res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id');
+            cb(null, data);
+          }
+
         }
       },
     },
