@@ -152,7 +152,7 @@ const services = {
                   ResultDesc: 'The record does not exist',
                 },
               };
-              client.quit();
+              client.close();
               // set http to 400
               res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
               res.status(200);
@@ -165,22 +165,34 @@ const services = {
                 ResultDesc: 'The record does not exist',
               },
             };
-            client.quit();
-            res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
+            client.close();
+            res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/LOGIN');
             res.status(200);
             cb(null, data);
           }
         } catch (err) {
-          res.status(500);
+          if (err.code === 2) {
+            const data = {
+              Result: {
+                ResultCode: '5004',
+                ResultDesc: 'Session ID invalid or time out',
+              },
+            };
+            res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
+            res.status(440);
+            cb(null, data);
+          } else {
+            const data = {
+              Result: {
+                ResultCode: '5001',
+                ResultDesc: 'Internal error',
+              },
+            };
 
-          const data = {
-            Result: {
-              ResultCode: '5001',
-              ResultDesc: 'Internal error',
-            },
-          };
-
-          cb(null, data);
+            res.status(500);
+            res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id');
+            cb(null, data);
+          }
         }
       },
     },
@@ -211,8 +223,9 @@ const services = {
               },
             };
             res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/' + sessionId);
-            res.setHeader('Location-maintenance', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/' + sessionId);
-            await client.quit();
+            res.setHeader('Location-maintenance', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/MAINTENANCE/' + sessionId);
+
+            client.close();
             return;
           } else {
             const data = {
@@ -223,11 +236,10 @@ const services = {
             };
             res.setHeader('Location-maintenance', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
             res.status(440);
-            await client.quit();
+            client.close();
             return;
           }
         } catch (err) {
-          console.log('Error: ', err)
           // check if err containts Record does not exist
           if (err.code === 2) {
             const data = {
@@ -239,9 +251,7 @@ const services = {
             res.setHeader('Location-maintenance', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
             res.status(440);
             cb(null, data);
-
           } else {
-
             const data = {
               Result: {
                 ResultCode: '5001',
@@ -253,7 +263,6 @@ const services = {
             res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id');
             cb(null, data);
           }
-
         }
       },
     },
@@ -292,7 +301,7 @@ const services = {
               },
             };
 
-            await client.quit();
+            client.close();
             res.status(307);
             res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
             cb(null, data);
@@ -304,7 +313,7 @@ const services = {
               },
             };
 
-            await client.quit();
+            client.close();
             res.status(307);
             res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
             cb(null, data);
@@ -316,21 +325,34 @@ const services = {
               ResultDesc: 'Operator not logged in',
             },
           };
-          await client.quit();
+          client.close();
           res.status(307);
           res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
 
           cb(null, data);
         } catch (err) {
-          const data = {
-            Result: {
-              ResultCode: '5001',
-              ResultDesc: 'Internal error',
-            },
-          };
-          res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
-          res.status(500);
-          cb(null, data);
+          if (err.code === 2) {
+            const data = {
+              Result: {
+                ResultCode: '5004',
+                ResultDesc: 'Session ID invalid or time out',
+              },
+            };
+            res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
+            res.status(440);
+            cb(null, data);
+          } else {
+            const data = {
+              Result: {
+                ResultCode: '5001',
+                ResultDesc: 'Internal error',
+              },
+            };
+
+            res.status(500);
+            res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id');
+            cb(null, data);
+          }
         }
       },
     },
