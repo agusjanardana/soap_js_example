@@ -169,7 +169,7 @@ const services = {
               // client.quit();
               res.setHeader('Session', sessionId);
               res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/' + sessionId);
-              res.setHeader('Location-maintenance', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/MAINTENANCE/' + sessionId);
+              res.setHeader('Location-maintenance', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/' + sessionId);
               res.status(307);
               cb(null, data);
             } else {
@@ -181,7 +181,7 @@ const services = {
               };
               client.quit();
               // set http to 400
-              res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/LOGIN');
+              res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
               res.status(200);
               cb(null, data);
             }
@@ -193,7 +193,7 @@ const services = {
               },
             };
             client.quit();
-            res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/LOGIN');
+            res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
             res.status(200);
             cb(null, data);
           }
@@ -241,7 +241,7 @@ const services = {
               },
             };
             res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/' + sessionId);
-            res.setHeader('Location-maintenance', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/MAINTENANCE/' + sessionId);
+            res.setHeader('Location-maintenance', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/' + sessionId);
             await client.quit();
             return;
           } else {
@@ -251,7 +251,7 @@ const services = {
                 ResultDesc: 'Session ID invalid or time out',
               },
             };
-            res.setHeader('Location-maintenance', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/LOGIN');
+            res.setHeader('Location-maintenance', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
             res.status(440);
             await client.quit();
             return;
@@ -334,7 +334,7 @@ const services = {
 
             await client.quit();
             res.status(307);
-            res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/LOGIN');
+            res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
             cb(null, data);
           } else {
             const data = {
@@ -346,7 +346,7 @@ const services = {
 
             await client.quit();
             res.status(307);
-            res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/LOGIN');
+            res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
             cb(null, data);
           }
 
@@ -358,7 +358,7 @@ const services = {
           };
           await client.quit();
           res.status(307);
-          res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/LOGIN');
+          res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
 
           cb(null, data);
         } catch (err) {
@@ -368,7 +368,7 @@ const services = {
               ResultDesc: 'Internal error',
             },
           };
-          res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/LOGIN');
+          res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/');
           res.status(500);
           cb(null, data);
         }
