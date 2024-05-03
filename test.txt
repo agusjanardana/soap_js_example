@@ -14,7 +14,7 @@ curl -i -X POST \
 EOF
 
 curl -i -X POST \
-  'http://127.0.0.1:8800/LOGOUT/ar7400li1wi' \
+  'http://127.0.0.1:8800/LOGOUT/1w5gyma9gp3' \
   -H "Content-Type: text/xml"\
   -d @- <<EOF
 <?xml version="1.0" encoding="utf-8"?>
@@ -61,7 +61,7 @@ curl -i -X POST \
   -H "Content-Type: text/xml"
 
 curl -i -X POST \
-  'http://127.0.0.1:9080/MAINTENANCE/qkj3ib85whm' \
+  'http://127.0.0.1:8800/MAINTENANCE/ijudhy0ibeq' \
   -H "Content-Type: text/xml"\
   -d @- <<EOF
 <?xml version="1.0" encoding="utf-8"?>
