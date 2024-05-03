@@ -320,10 +320,12 @@ const services = {
 
           // await client.connect();
 
-          const value = await client.get(sessionId);
+          // const value = await client.get(sessionId);
+          let key = new Aerospike.Key(namespace, set, sessionId);
+          let value = await client.get(key, basePolicy);
 
           if (value) {
-            await client.del(sessionId);
+            await client.remove(key);
             // await client.del(value);
             const data = {
               Result: {
