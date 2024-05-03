@@ -303,7 +303,7 @@ const services = {
       Logout: async function (args, cb, headers, req, res) {
         try {
           const sessionId = req.params.sessionId;
-          console.log({ sessionId });
+
           if (!sessionId) {
             const data = {
               Result: {
@@ -315,12 +315,10 @@ const services = {
             cb(null, data);
           }
 
-          const client = redis.createClient({
-            url: url,
-          });
-          client.on('error', (err) => console.log('Redis Client Error', err));
+          let client = await Aerospike.connect(aero_config);
+          client.on('error', (err) => console.log('Aerospike Client Error', err));
 
-          await client.connect();
+          // await client.connect();
 
           const value = await client.get(sessionId);
 
