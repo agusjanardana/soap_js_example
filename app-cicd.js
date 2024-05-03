@@ -3,9 +3,7 @@ const soap = require('soap');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const fs = require('fs');
-const redis = require('redis');
 const crypto = require('crypto');
-const Redis = require('ioredis');
 require('dotenv').config();
 
 const Aerospike = require('aerospike');
@@ -15,7 +13,6 @@ const address = process.env.AEROSPIKE_URI;
 const namespace = process.env.AEROSPIKE_NS;
 const set = process.env.AEROSPIKE_SET;
 const user_set = process.env.AEROSPIKE_USER_SET;
-const port = process.env.PORT;
 
 let aero_config = {
   hosts: address,
@@ -41,17 +38,6 @@ app.use(
 app.use(cookieParser());
 
 const users = [{ username: 'bagus', password: '123456', sessionId: 'ABC123' }];
-
-function initializeRedis() {
-  const redis = new Redis.Cluster([
-    { host: process.env.REDIS_HOST_1, port: process.env.REDIS_PORT_1 },
-    { host: process.env.REDIS_HOST_2, port: process.env.REDIS_PORT_2 },
-    { host: process.env.REDIS_HOST_3, port: process / env.REDIS_PORT_4 },
-    // Tambahkan node Redis Cluster lainnya di sini
-  ]);
-
-  return redis;
-}
 
 function getSessionId(args) {
   console.log('args: ', args);
@@ -95,8 +81,6 @@ function hashPassword(password) {
   return hashedPassword;
 }
 
-const url = `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`;
-
 const services = {
   AuthService: {
     AuthSoapPort: {
@@ -105,14 +89,9 @@ const services = {
           const sessionId = generateSessionId();
           const { OPNAME, PWD } = args;
 
-          // const client = redis.createClient({
-          //   url: url,
-          // });
-
           let client = await Aerospike.connect(aero_config);
           client.on('error', (err) => console.log('Aerospike Client Error', err));
-          // await client.connect();
-          // const value = await client.get('user');
+
           let key = new Aerospike.Key(namespace, user_set, OPNAME);
           let value = await client.get(key, basePolicy);
 
@@ -148,9 +127,6 @@ const services = {
                 },
               };
 
-              // await client.set(OPNAME, sessionId);
-              // await client.expire(OPNAME, 50);
-
               let key = new Aerospike.Key(namespace, set, sessionId);
               let bins = {
                 session_id: sessionId, // isinya session key , misal session_id : akfzx123zs
@@ -163,10 +139,7 @@ const services = {
 
               await client.put(key, bins, meta, basePolicy);
               client.close();
-              // await client.set(sessionId, OPNAME);
-              // await client.expire(sessionId, 50);
 
-              // client.quit();
               res.setHeader('Session', sessionId);
               res.setHeader('Location', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/' + sessionId);
               res.setHeader('Location-maintenance', 'https://cicdbsdsapigw.vdsp.telkomsel.co.id/' + sessionId);
@@ -219,20 +192,17 @@ const services = {
         try {
           // get session id from params
           const sessionId = req.params.sessionId;
-          // Cari user dengan sessionId yang sesuai di redis
 
-          const client = redis.createClient({
-            url: url,
-          });
-          client.on('error', (err) => console.log('Redis Client Error', err));
+          let client = await Aerospike.connect(aero_config);
+          client.on('error', (err) => console.log('Aerospike Client Error', err));
 
-          await client.connect();
+          let key = new Aerospike.Key(namespace, set, sessionId);
+          let value = await client.get(key, basePolicy);
 
-          const value = await client.get(sessionId);
           if (value) {
             // get username from sessionid
-            await client.expire(sessionId, 50);
-            // await client.expire(value, 50);
+            let meta = {};
+            await client.operate(key, [op.touch(50)], meta, basePolicy);
 
             const data = {
               Result: {
@@ -272,32 +242,6 @@ const services = {
     },
   },
 
-  DataService: {
-    DataPort: {
-      GetData: function (args, cb, headers, req, res) {
-        // get headers
-        try {
-          const data = {
-            name: 'John Doe',
-            age: '30',
-            city: 'Example City',
-          };
-
-          cb(null, data);
-        } catch (err) {
-          const data = {
-            Result: {
-              ResultCode: '5001',
-              ResultDesc: 'Internal error',
-            },
-          };
-          res.status(500);
-          cb(null, data);
-        }
-      },
-    },
-  },
-
   LogoutService: {
     LogoutPort: {
       Logout: async function (args, cb, headers, req, res) {
@@ -318,15 +262,12 @@ const services = {
           let client = await Aerospike.connect(aero_config);
           client.on('error', (err) => console.log('Aerospike Client Error', err));
 
-          // await client.connect();
-
-          // const value = await client.get(sessionId);
           let key = new Aerospike.Key(namespace, set, sessionId);
           let value = await client.get(key, basePolicy);
 
           if (value) {
             await client.remove(key);
-            // await client.del(value);
+
             const data = {
               Result: {
                 ResultCode: '0',
@@ -380,7 +321,6 @@ const services = {
 };
 
 const authXml = fs.readFileSync('./services/auth-services.wsdl', 'utf8');
-const dataXml = fs.readFileSync('./services/data-services.wsdl', 'utf8');
 const logoutXml = fs.readFileSync('./services/logout-services.wsdl', 'utf8');
 const maintenanceXml = fs.readFileSync('./services/auth-maintenances.wsdl', 'utf8');
 
@@ -390,8 +330,6 @@ const server = app.listen(8800, function () {
   console.log('Combined Service SOAP listening at http://%s:%s', host, port);
 
   soap.listen(app, '/LOGIN', services, authXml);
-  soap.listen(app, '/DATA', services, dataXml);
-  soap.listen(app, '/USCDB/TEST/:sessionId', services, dataXml);
   soap.listen(app, '/LOGOUT/:sessionId', services, logoutXml);
   soap.listen(app, '/MAINTENANCE/:sessionId', services, maintenanceXml);
 });
