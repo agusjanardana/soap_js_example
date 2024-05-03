@@ -14,7 +14,7 @@ curl -i -X POST \
 EOF
 
 curl -i -X POST \
-  'http://127.0.0.1:9080/USCDB/LOGOUT/8xs1s2545hx' \
+  'http://127.0.0.1:8800/LOGOUT/8xs1s2545hx' \
   -H "Content-Type: text/xml"\
   -d @- <<EOF
 <?xml version="1.0" encoding="utf-8"?>
@@ -75,3 +75,4 @@ EOF
 
 
 docker buildx build --platform linux/amd64 -t my-cool-image .
+
