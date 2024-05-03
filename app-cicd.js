@@ -81,8 +81,6 @@ function hashPassword(password) {
   return hashedPassword;
 }
 
-const url = `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`;
-
 const services = {
   AuthService: {
     AuthSoapPort: {
