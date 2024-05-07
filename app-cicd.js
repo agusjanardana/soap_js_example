@@ -227,7 +227,7 @@ const services = {
               },
             };
             res.setHeader('Location', LOCATION_FOR_HEADER + sessionId);
-            res.setHeader('Location-maintenance', LOCATION_FOR_HEADERMAINTENANCE + sessionId);
+            res.setHeader('Location-maintenance', LOCATION_FOR_HEADER + sessionId);
 
             client.close();
             return;

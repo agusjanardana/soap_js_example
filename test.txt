@@ -29,7 +29,7 @@ EOF
 curl -i -X POST 'http://127.0.0.1:9080/post'
 
 docker-compose -p docker-apisix -f docker-compose-arm64.yml up -d
-docker buildx build --platform linux/amd64 -t vdsp-sample-auth:1.2 .
+docker buildx build --platform linux/amd64 -t vdsp-sample-auth:1.3 .
 
 curl -i -X POST \
   'http://127.0.0.1:9080/DATA' \
@@ -58,7 +58,7 @@ curl -i -X POST \
 EOF
 
 curl -i -X POST \
-  'http://127.0.0.1:9080/MAINTENANCE/qkj3ib85whm' \
+  'http://127.0.0.1:9080/MAINTENANCE/2e1cyvqdbru' \
   -H "Content-Type: text/xml"
 
 curl -i -X POST \
