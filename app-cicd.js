@@ -16,6 +16,9 @@ const user_set = process.env.AEROSPIKE_USER_SET;
 
 const LOCATION_FOR_HEADER = process.env.LOCATION_FOR_HEADER;
 
+const caFile = process.env.AEROSPIKE_CA_FILE;
+let isEnable = process.env.AEROSPIKE_TLS_ENABLE === 'true' ? true : false;
+
 let aero_config = {
   hosts: address,
   log: {
@@ -23,6 +26,10 @@ let aero_config = {
   },
   user: process.env.AEROSPIKE_USER || 'admin',
   password: process.env.AEROSPIKE_PASSWORD || 'admin',
+  tls: {
+    enable: isEnable,
+    cafile: caFile,
+  }
 };
 
 let basePolicy = new Aerospike.BasePolicy({
