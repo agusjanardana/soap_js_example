@@ -20,9 +20,9 @@ const caFile = process.env.AEROSPIKE_CA_FILE;
 let isEnable = process.env.AEROSPIKE_TLS_ENABLE === "true" ? true : false;
 
 const OS = require("os");
-const defaulThread = OS.cpus().length;
+// const defaulThread = OS.cpus().length;
 
-process.env.UV_THREADPOOL_SIZE = defaulThread || process.env.UV_THREADPOOL_SIZE;
+// process.env.UV_THREADPOOL_SIZE = defaulThread || process.env.UV_THREADPOOL_SIZE;
 
 let aero_config = {
   hosts: address,
@@ -88,6 +88,20 @@ function hashPassword(password) {
   return hashedPassword;
 }
 
+let aerospikeClient;
+Aerospike.connect(aero_config)
+  .then((client) => {
+    aerospikeClient = client;
+    aerospikeClient.on("error", (err) =>
+      console.log("Aerospike Client Error", err)
+    );
+    console.log("Connected to Aerospike");
+  })
+  .catch((error) => {
+    console.error("Failed to connect to Aerospike:", error);
+    process.exit(1); // Exit if connection fails
+  });
+
 const services = {
   AuthService: {
     AuthSoapPort: {
@@ -96,10 +110,10 @@ const services = {
           const sessionId = generateSessionId();
           const { OPNAME, PWD } = args;
 
-          let client = await Aerospike.connect(aero_config);
+          // let client = await Aerospike.connect(aero_config);
 
           let key = new Aerospike.Key(namespace, user_set, OPNAME);
-          let value = await client.get(key, basePolicy);
+          let value = await aerospikeClient.get(key, basePolicy);
 
           if (value) {
             const data = {
@@ -119,8 +133,7 @@ const services = {
               ttl: 50,
             };
 
-            await client.put(key, bins, meta, basePolicy);
-            client.close();
+            await aerospikeClient.put(key, bins, meta, basePolicy);
 
             res.setHeader("Session", sessionId);
             res.setHeader("Location", LOCATION_FOR_HEADER + sessionId);
@@ -137,7 +150,6 @@ const services = {
                 ResultDesc: "The record does not exist",
               },
             };
-            client.close();
             res.setHeader("Location", LOCATION_FOR_HEADER);
             res.status(200);
             cb(null, data);
@@ -178,15 +190,20 @@ const services = {
           // get session id from params
           const sessionId = req.params.sessionId;
 
-          let client = await Aerospike.connect(aero_config);
+          // let client = await Aerospike.connect(aero_config);
 
           let key = new Aerospike.Key(namespace, set, sessionId);
-          let value = await client.get(key, basePolicy);
+          let value = await aerospikeClient.get(key, basePolicy);
 
           if (value) {
             // get username from sessionid
             let meta = {};
-            await client.operate(key, [op.touch(50)], meta, basePolicy);
+            await aerospikeClient.operate(
+              key,
+              [op.touch(50)],
+              meta,
+              basePolicy
+            );
 
             const data = {
               Result: {
@@ -200,7 +217,6 @@ const services = {
               LOCATION_FOR_HEADER + sessionId
             );
 
-            client.close();
             return;
           } else {
             const data = {
@@ -211,7 +227,6 @@ const services = {
             };
             res.setHeader("Location-maintenance", LOCATION_FOR_HEADER);
             res.status(307);
-            client.close();
             return;
           }
         } catch (err) {
@@ -260,13 +275,13 @@ const services = {
             cb(null, data);
           }
 
-          let client = await Aerospike.connect(aero_config);
+          // let client = await Aerospike.connect(aero_config);
 
           let key = new Aerospike.Key(namespace, set, sessionId);
-          let value = await client.get(key, basePolicy);
+          let value = await aerospikeClient.get(key, basePolicy);
 
           if (value) {
-            await client.remove(key);
+            await aerospikeClient.remove(key);
 
             const data = {
               Result: {
@@ -275,7 +290,6 @@ const services = {
               },
             };
 
-            client.close();
             res.status(307);
             res.setHeader("Location", LOCATION_FOR_HEADER);
             cb(null, data);
@@ -287,7 +301,6 @@ const services = {
               },
             };
 
-            client.close();
             res.status(307);
             res.setHeader("Location", LOCATION_FOR_HEADER);
             cb(null, data);
@@ -299,7 +312,6 @@ const services = {
               ResultDesc: "Operator not logged in",
             },
           };
-          client.close();
           res.status(307);
           res.setHeader("Location", LOCATION_FOR_HEADER);
 
@@ -348,6 +360,18 @@ const server = app.listen(8800, function () {
   soap.listen(app, "/LOGIN", services, authXml);
   soap.listen(app, "/LOGOUT/:sessionId", services, logoutXml);
   soap.listen(app, "/MAINTENANCE/:sessionId", services, maintenanceXml);
+});
+
+process.on("SIGINT", () => {
+  if (aerospikeClient) {
+    aerospikeClient.on("end", () => {
+      console.log("Aerospike connection closed");
+      aerospikeClient.close();
+    });
+  } else {
+    aerospikeClient.close();
+  }
+  process.exit();
 });
 
 module.exports = app;
