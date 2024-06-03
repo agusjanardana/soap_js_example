@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="UTF-  "?>
-<wsdl:definitions targetNamespace="http://10.53.93.34/AuthServices" 
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="http://www.huawei.com/" 
   xmlns:s="http://www.w3.org/2001/XMLSchema" 
   xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" 
   xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" 
   xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" 
-  xmlns:tns="http://10.53.93.34/AuthServices" 
+  xmlns:tns="http://www.huawei.com/" 
   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
   xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" 
   xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" 
   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
-    <s:schema elementFormDefault="qualified" targetNamespace="http://10.53.93.34/AuthServices">
+    <s:schema elementFormDefault="qualified" targetNamespace="http://www.huawei.com/">
       <s:element name="LGI">
         <s:complexType>
           <s:sequence>

@@ -1,62 +1,64 @@
-<definitions
-  name="DataService"
-  targetNamespace="http://example.com/DataService.wsdl"
-  xmlns="http://schemas.xmlsoap.org/wsdl/"
->
+<definitions name="WeatherService"
+  targetNamespace="http://example.com/weather"
+  xmlns:tns="http://example.com/weather"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+  >
+  
   <types>
-    <schema
-      targetNamespace="http://example.com/DataService.wsdl"
-      xmlns="http://www.w3.org/2001/XMLSchema"
-    >
-      <element name="GetDataRequest">
-        <complexType>
-          <sequence>
-            <!-- Jika ada parameter tambahan, tambahkan di sini -->
-          </sequence>
-        </complexType>
-      </element>
-
-      <element name="GetDataResponse">
-        <complexType>
-          <sequence>
-            <element name="data" type="string" />
-          </sequence>
-        </complexType>
-      </element>
-    </schema>
+    <xsd:schema>
+      <xsd:element name="GetWeatherRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="location" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="GetWeatherResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="temperature" type="xsd:string"/>
+            <xsd:element name="description" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:schema>
   </types>
 
-  <message name="GetDataRequest">
-    <part name="parameters" element="tns:GetDataRequest" />
+  <message name="GetWeatherRequestMessage">
+    <part name="request" element="tns:GetWeatherRequest"/>
+  </message>
+  <message name="GetWeatherResponseMessage">
+    <part name="response" element="tns:GetWeatherResponse"/>
   </message>
 
-  <message name="GetDataResponse">
-    <part name="parameters" element="tns:GetDataResponse" />
-  </message>
-
-  <portType name="DataPortType">
-    <operation name="GetData">
-      <input message="tns:GetDataRequest" />
-      <output message="tns:GetDataResponse" />
+  <portType name="WeatherPortType">
+    <operation name="GetWeather">
+      <input message="tns:GetWeatherRequestMessage"/>
+      <output message="tns:GetWeatherResponseMessage"/>
     </operation>
   </portType>
 
-  <binding name="DataBinding" type="tns:DataPortType">
-    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
-    <operation name="GetData">
-      <soap:operation soapAction="GetData" />
+  <binding name="WeatherBinding" type="tns:WeatherPortType">
+    <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="GetWeather">
+      <soap:operation soapAction="http://example.com/weather/GetWeather"/>
       <input>
-        <soap:body use="literal" />
+        <soap:body use="encoded" namespace="http://example.com/weather"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
       </input>
       <output>
-        <soap:body use="literal" />
+        <soap:body use="encoded" namespace="http://example.com/weather"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
       </output>
     </operation>
   </binding>
 
-  <service name="DataService">
-    <port name="DataPort" binding="tns:DataBinding">
-      <soap:address location="http://localhost:3030/wsdl/data" />
+  <service name="WeatherService">
+    <port name="WeatherPort" binding="tns:WeatherBinding">
+      <soap:address location="http://example.com/weather"/>
     </port>
   </service>
+
 </definitions>
