@@ -6,15 +6,15 @@ curl -i -X POST \
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://localhost/AuthService.wsdl" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/">
     <soap:Body>
         <tns:LGI>
-            <OPNAME>vdsp</OPNAME>
-            <PWD>123456</PWD>
+            <OPNAME>bmkg2</OPNAME>
+            <PWD>testingbmkg</PWD>
         </tns:LGI>
     </soap:Body>
 </soap:Envelope>
 EOF
 
 curl -i -X POST \
-  'http://127.0.0.1:8800/LOGOUT/1w5gyma9gp3' \
+  'http://127.0.0.1:8800/LOGOUT/6qdngesz3v' \
   -H "Content-Type: text/xml"\
   -d @- <<EOF
 <?xml version="1.0" encoding="utf-8"?>
@@ -29,7 +29,7 @@ EOF
 curl -i -X POST 'http://127.0.0.1:9080/post'
 
 docker-compose -p docker-apisix -f docker-compose-arm64.yml up -d
-docker buildx build --platform linux/amd64 -t vdsp-authentication-services:1.1 .
+docker buildx build --platform linux/amd64 -t vdsp-authentication-services:4.0 .
 
 curl -i -X POST \
   'http://127.0.0.1:9080/DATA' \

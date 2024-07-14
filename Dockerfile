@@ -31,7 +31,7 @@ COPY --from=as-node-builder /src/aerospike ./aerospike
 RUN npm install /src/aerospike
 RUN ls -la /src
 RUN ls -la
-RUN npm install dotenv express nodemon cookie-parser crypto debug morgan soap
+RUN npm install dotenv express nodemon cookie-parser crypto debug morgan soap bcryptjs
 
 COPY .env /src/.env 
 COPY ./services /src/services

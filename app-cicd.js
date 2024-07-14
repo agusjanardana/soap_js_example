@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const fs = require("fs");
 const crypto = require("crypto");
+const bcrypt = require('bcryptjs');
 require("dotenv").config();
 
 const Aerospike = require("aerospike");
@@ -88,6 +89,16 @@ function hashPassword(password) {
   return hashedPassword;
 }
 
+async function checkPassword(inputPassword, hashedPassword) {
+    try {
+        // Membandingkan password yang dimasukkan dengan hash yang disimpan
+        const match = await bcrypt.compare(inputPassword, hashedPassword);
+        return match;
+    } catch (error) {
+        throw new Error('Error comparing passwords');
+    }
+}
+
 let aerospikeClient;
 Aerospike.connect(aero_config)
   .then((client) => {
@@ -113,9 +124,23 @@ const services = {
           // let client = await Aerospike.connect(aero_config);
 
           let key = new Aerospike.Key(namespace, user_set, OPNAME);
-          let value = await aerospikeClient.get(key, basePolicy);
+          let dataUser = await aerospikeClient.get(key, basePolicy);
 
-          if (value) {
+      
+          const matchPassword = await checkPassword(PWD, dataUser.bins.password);
+          // check password
+          if (!matchPassword) {
+            const data = {
+              Result: {
+                ResultCode: "1018",
+                ResultDesc: "Password doesn't match",
+              },
+            };
+            res.status(400);
+            cb(null, data);
+          }
+
+          if (dataUser) {
             const data = {
               Result: {
                 ResultCode: "0",
@@ -357,9 +382,63 @@ const server = app.listen(8800, function () {
   const port = server.address().port;
   console.log("Combined Service SOAP listening at http://%s:%s", host, port);
 
-  soap.listen(app, "/LOGIN", services, authXml);
-  soap.listen(app, "/LOGOUT/:sessionId", services, logoutXml);
-  soap.listen(app, "/MAINTENANCE/:sessionId", services, maintenanceXml);
+  soap.listen(app, "/LOGIN", services, authXml).on("response", (res) => {
+    res.result = res.result.replace(/soap:Header/g, "SOAP-ENV:Header");
+    res.result = res.result.replace(/soap:Envelope/g, "SOAP-ENV:Envelope");
+    res.result = res.result.replace(/soap:Body/g, "SOAP-ENV:Body");
+    res.result = res.result.replace(/soap:Fault/g, "SOAP-ENV:Fault");
+    res.result = res.result.replace(/xmlns:soap/g, "xmlns:SOAP-ENV");
+    res.result = res.result.replace(/ encoding="utf-8"/g, "");
+    // res.result = res.result.replace(
+    //   / xmlns="http:\/\/www\.huawei\.com\/"/g,
+    //   ""
+    // );
+    res.result = res.result.replace(
+      /  xmlns:tns="http:\/\/www\.huawei\.com\/USCDB\/LGI"/g,
+      ""
+    );
+  });
+  soap
+    .listen(app, "/LOGOUT/:sessionId", services, logoutXml)
+    .on("response", (res) => {
+      res.result = res.result.replace(/soap:Header/g, "SOAP-ENV:Header");
+      res.result = res.result.replace(/soap:Envelope/g, "SOAP-ENV:Envelope");
+      res.result = res.result.replace(/soap:Body/g, "SOAP-ENV:Body");
+      res.result = res.result.replace(/soap:Fault/g, "SOAP-ENV:Fault");
+      res.result = res.result.replace(/xmlns:soap/g, "xmlns:SOAP-ENV");
+      res.result = res.result.replace(/ encoding="utf-8"/g, "");
+
+      // res.result = res.result.replace(
+      //   / xmlns="http:\/\/www\.huawei\.com\/"/g,
+      //   ""
+      // );
+      res.result = res.result.replace(
+        /  xmlns:tns="http:\/\/www\.huawei\.com\/USCDB\/LGO"/g,
+        ""
+      );
+    });
+  soap
+    .listen(app, "/MAINTENANCE/:sessionId", services, maintenanceXml)
+    .on("response", (res) => {
+      res.result = res.result.replace(/soap:Header/g, "SOAP-ENV:Header");
+      res.result = res.result.replace(/soap:Envelope/g, "SOAP-ENV:Envelope");
+      res.result = res.result.replace(/soap:Body/g, "SOAP-ENV:Body");
+      res.result = res.result.replace(/soap:Fault/g, "SOAP-ENV:Fault");
+      res.result = res.result.replace(/xmlns:soap/g, "xmlns:SOAP-ENV");
+      res.result = res.result.replace(/ encoding="utf-8"/g, "");
+      res.result = res.result.replace(
+        / xmlns="http:\/\/www\.huawei\.com\/"/g,
+        ""
+      );
+      res.result = res.result.replace(
+        / xmlns="http:\/\/www\.huawei\.com\/"/g,
+        ""
+      );
+      res.result = res.result.replace(
+        /  xmlns:tns="http:\/\/www\.huawei\.com\/"/g,
+        ""
+      );
+    });
 });
 
 process.on("SIGINT", () => {
