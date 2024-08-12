@@ -35,7 +35,7 @@ RUN npm install dotenv express nodemon cookie-parser crypto debug morgan soap bc
 
 COPY .env /src/.env 
 COPY ./services /src/services
-COPY app-cicd.js /src/app-cicd.js 
+COPY app.js /src/app.js 
 COPY package.json /src/package.json 
 COPY package-lock.json /src/package-lock.json
 

@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const fs = require("fs");
 const crypto = require("crypto");
-const bcrypt = require('bcryptjs');
+const bcrypt = require("bcryptjs");
 require("dotenv").config();
 
 const Aerospike = require("aerospike");
@@ -54,49 +54,19 @@ app.use(
 );
 app.use(cookieParser());
 
-const users = [{ username: "bagus", password: "123456", sessionId: "ABC123" }];
-
-function getSessionId(args) {
-  console.log("args: ", args);
-  const { username, password } = args;
-
-  const user = users.find(
-    (u) => u.username === username && u.password === password
-  );
-
-  if (user) {
-    data = {
-      sessionId: user.sessionId,
-      clientId: "Tel-Poin",
-    };
-    return data;
-  } else {
-    return null;
-  }
-}
-
 // generate random session id
 function generateSessionId() {
   return Math.random().toString(36).slice(2);
 }
 
-function hashPassword(password) {
-  // Menggunakan SHA-256 untuk menghash password
-  const hashedPassword = crypto
-    .createHash("sha256")
-    .update(password)
-    .digest("hex");
-  return hashedPassword;
-}
-
 async function checkPassword(inputPassword, hashedPassword) {
-    try {
-        // Membandingkan password yang dimasukkan dengan hash yang disimpan
-        const match = await bcrypt.compare(inputPassword, hashedPassword);
-        return match;
-    } catch (error) {
-        throw new Error('Error comparing passwords');
-    }
+  try {
+    // Membandingkan password yang dimasukkan dengan hash yang disimpan
+    const match = await bcrypt.compare(inputPassword, hashedPassword);
+    return match;
+  } catch (error) {
+    throw new Error("Error comparing passwords");
+  }
 }
 
 let aerospikeClient;
@@ -126,8 +96,10 @@ const services = {
           let key = new Aerospike.Key(namespace, user_set, OPNAME);
           let dataUser = await aerospikeClient.get(key, basePolicy);
 
-      
-          const matchPassword = await checkPassword(PWD, dataUser.bins.password);
+          const matchPassword = await checkPassword(
+            PWD,
+            dataUser.bins.password
+          );
           // check password
           if (!matchPassword) {
             const data = {

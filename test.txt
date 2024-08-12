@@ -1,5 +1,5 @@
 curl -i -X POST \
-  'http://127.0.0.1:8800/LOGIN' \
+  'https://9f46-158-140-180-14.ngrok-free.app/LOGIN' \
   -H "Content-Type: text/xml"\
   -d @- <<EOF
 <?xml version="1.0" encoding="utf-8"?>
